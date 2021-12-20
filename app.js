@@ -6,12 +6,16 @@ dotenv.config({path: './config.env'});
 require('./db/conn');
 
 app.use(express.json());
-app.use(require('./router/auth'));
 
+// Linking the routes
+app.use(require('./router/auth'));
+app.use(require("./router/users/users"));
+app.use(require("./router/items/items"));
+
+// Linkubg the schemas
 const User = require('./model/userSchema');
 
 const PORT = process.env.PORT;
-
 
 
 // app.get('/', (req,res) => {

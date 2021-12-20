@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+cont authenticate = require("../middleware/authenticate");
 const router = express.Router();
 
 require("../db/conn.js");
@@ -9,7 +11,7 @@ router.get("/", (req, res) => {
   res.send("<h1>Hello from Router</h1>");
 });
 
-router.get("/aboutus", (req, res) => {
+router.get("/aboutus",authenticate, (req, res) => {
   res.send("<h1>Hello from about!!!</h1>");
 });
 
@@ -66,6 +68,7 @@ router.post("/signup", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
+  let token;
   if (!email || !password) {
     res.status(422).json({ error: "Plz fill the required field" });
   }
@@ -73,6 +76,11 @@ router.post("/signin", async (req, res) => {
     const userlogin = await User.findOne({ email: email });
     if (userlogin) {
       const isMatch = await bcrypt.compare(password, userlogin.password);
+      const token = await userLogin.generateAuthToken();
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 900000),
+        httpOnly: true,
+      });
       if (isMatch) {
         return res.status(200).json({ message: "User logged in successfully" });
       } else {
