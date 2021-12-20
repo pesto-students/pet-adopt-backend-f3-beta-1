@@ -12,7 +12,8 @@ router.get("/", (req, res) => {
 });
 
 router.get("/aboutus",authenticate, (req, res) => {
-  res.send("<h1>Hello from about!!!</h1>");
+  res.send(req.rootUser);
+
 });
 
 router.get("/contact", (req, res) => {
