@@ -9,10 +9,22 @@ const itemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  images: {
-    type: Number,
+  category: {
+    type: String,
     required: true,
   },
+  subcategory: {
+    type: String,
+    required: true,
+  },
+  images: [
+    {
+      image: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   property: {
     type: String,
     required: true,

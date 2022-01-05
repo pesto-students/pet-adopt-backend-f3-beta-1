@@ -6,7 +6,6 @@ router.get("/login", (req, res) => {
 
 router.get("/signup", (req, res) => {
   res.send("<h1>Hello from sign up!!!</h1>");
-  p;
 });
 
 module.exports = router;

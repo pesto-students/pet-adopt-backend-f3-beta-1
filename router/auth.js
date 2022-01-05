@@ -2,7 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken')
 
-
 const authenticate = require('../middleware/Authenticate')
 const router = express.Router();
 
@@ -44,6 +43,7 @@ router.post("/signup", async (req, res) => {
 router.post("/signin", async (req, res) => {
   console.log('signin called');
   const { email, password } = req.body;
+  let token;
   if (!email || !password) {
     res.status(422).json({ error: "Plz fill the required field" });
   }
@@ -51,6 +51,11 @@ router.post("/signin", async (req, res) => {
     const userlogin = await User.findOne({ email: email });
     if (userlogin) {
       const isMatch = await bcrypt.compare(password, userlogin.password);
+      const token = await userLogin.generateAuthToken();
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 900000),
+        httpOnly: true,
+      });
       if (isMatch) {
         const token = await userlogin.generateAuthToken();
         res.cookie("jwtoken",token,{
