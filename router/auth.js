@@ -1,46 +1,23 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken')
+
+
+const authenticate = require('../middleware/Authenticate')
 const router = express.Router();
 
 require("../db/conn.js");
 const User = require("../model/userSchema");
 
-router.get("/", (req, res) => {
-  res.send("<h1>Hello from Router</h1>");
-});
 
-router.get("/aboutus", (req, res) => {
-  res.send("<h1>Hello from about!!!</h1>");
+router.get("/dashboard", authenticate , (req, res) => {
+  res.send(req.rootUser);
 });
 
 router.get("/contact", (req, res) => {
   res.send("<h1>Hello contact!!!</h1>");
 });
 
-// router.post('/signup', (req,res)=>{
-//     const {name, email, phone, work, password, cpassword} = req.body;
-//     if(!name || !email || !phone || !work || !password || !cpassword){
-//         res.status(422).json({error:"Plz fill the required field"});
-//     }
-//     User.findOne({email: email})
-//         .then((useExist)=>{
-//             if(useExist){
-//                 return res.status(422).json({error:"Email already exists"});
-//             }
-//             const user = new User({name, email, phone, work, password, cpassword});
-
-//             user.save()
-//                 .then(() => {
-//                     res.status(201).json({message:"User registered successfully!!!"});
-//                 })
-//                 .catch((err)=>res.status(500).json({error:"Failed to register"}));
-//         })
-//         .catch((err)=>{console.log(err)});
-//     // console.log(name);
-//     // console.log(email);
-//     // res.json({message:req.body});
-//     // res.send(message:req.body);
-// });
 
 router.post("/signup", async (req, res) => {
   const { name, email, phone, work, password, cpassword } = req.body;
@@ -65,6 +42,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
+  console.log('signin called');
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(422).json({ error: "Plz fill the required field" });
@@ -74,6 +52,11 @@ router.post("/signin", async (req, res) => {
     if (userlogin) {
       const isMatch = await bcrypt.compare(password, userlogin.password);
       if (isMatch) {
+        const token = await userlogin.generateAuthToken();
+        res.cookie("jwtoken",token,{
+            expires:new Date(Date.now() +25892000000),
+            httpOnly:true,
+          });
         return res.status(200).json({ message: "User logged in successfully" });
       } else {
         return res.status(400).json({ message: "Invalid Credentials" });
@@ -84,6 +67,13 @@ router.post("/signin", async (req, res) => {
   } catch (error) {
     res.send(error);
   }
+});
+
+//Logout Page
+router.get("/logout", (req, res) => {
+  console.log('Logout');
+  res.clearCookie('jwtoken',{path: '/'})
+  res.status(200).send('User Logout Done.');
 });
 
 module.exports = router;
