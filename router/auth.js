@@ -50,18 +50,23 @@ router.post("/signin", async (req, res) => {
   try {
     const userlogin = await User.findOne({ email: email });
     if (userlogin) {
+      console.log('step1');
       const isMatch = await bcrypt.compare(password, userlogin.password);
-      const token = await userLogin.generateAuthToken();
+      console.log('step2');
+      const token = await userlogin.generateAuthToken();
+      console.log('step3');
       res.cookie("token", token, {
         expires: new Date(Date.now() + 900000),
         httpOnly: true,
       });
+      console.log('step4');
       if (isMatch) {
         const token = await userlogin.generateAuthToken();
+        console.log('step5');
         res.cookie("jwtoken",token,{
-            expires:new Date(Date.now() +25892000000),
-            httpOnly:true,
-          });
+          expires:new Date(Date.now() +25892000000),
+          httpOnly:true,
+        });
         return res.status(200).json({ message: "User logged in successfully" });
       } else {
         return res.status(400).json({ message: "Invalid Credentials" });
