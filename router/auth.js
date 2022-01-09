@@ -7,6 +7,16 @@ const router = express.Router();
 
 require("../db/conn.js");
 const User = require("../model/userSchema");
+const Pet = require("../model/petSchema");
+
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
+
+const { uploadFile, getFileStream } = require('../images/s3')
+
+const fs = require('fs')
+const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
 
 
 router.get("/dashboard", authenticate , (req, res) => {
@@ -85,5 +95,51 @@ router.get("/logout", (req, res) => {
   res.clearCookie('jwtoken',{path: '/'})
   res.status(200).send('User Logout Done.');
 });
+
+router.get('/images/:key', (req, res) => {
+  console.log(req.params)
+  const key = req.params.key
+  const readStream = getFileStream(key)
+
+  readStream.pipe(res)
+});
+
+router.post('/images', upload.single('image'), async (req, res) => {
+  const file = req.file
+  console.log(file)
+  const result = await uploadFile(file)
+  await unlinkFile(file.path)
+  console.log(result)
+  res.send(result)
+});
+
+
+
+router.post("/createpet", async (req, res) => {
+  const {about,adoptionFee,age,gender,petimage,petcategory,petname,selectedPet,size} = req.body;
+  if (!about || !adoptionFee || !age || !gender || !petcategory || !petname || !selectedPet || !size) {
+    res.status(422).json({ error: "Plz fill the required field" });
+  }
+  try {
+    const pet = new Pet({ about,adoptionFee,age,gender,petcategory,petname,selectedPet,size });
+    pet.petimages = pet.petimages.concat({ image : petimage[0] });
+    await pet.save();
+    res.json({ message: "Pet added successfully!!!" }).send(201);  
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/fetchpet", async (req, res) => {
+  console.log("pet details called");
+  const petDetails = await Pet.findOne({petname: "rio"})
+  if(petDetails){
+    res.send(petDetails);
+  }
+  else{
+    res.send(400);
+  }
+});
+
 
 module.exports = router;
