@@ -30,6 +30,7 @@ router.get("/contact", (req, res) => {
 
 router.post("/signup", async (req, res) => {
   const { name, email, phone, work, password, cpassword } = req.body;
+  console.log(req.body);
   if (!name || !email || !phone || !work || !password || !cpassword) {
     res.status(422).json({ error: "Plz fill the required field" });
   }
@@ -41,7 +42,6 @@ router.post("/signup", async (req, res) => {
       return res.status(422).json({ error: "password not matching" });
     } else {
       const user = new User({ name, email, phone, work, password, cpassword });
-
       await user.save();
       res.status(201).json({ message: "User registered successfully!!!" });
     }
@@ -130,11 +130,11 @@ router.post("/createpet", async (req, res) => {
   }
 });
 
-router.get("/fetchpet", async (req, res) => {
+router.get("/fetchpet", authenticate ,async (req, res) => {
   console.log("pet details called");
-  const petDetails = await Pet.findOne({petname: "rio"})
+  const petDetails = await Pet.findOne({petname: "spike"})
   if(petDetails){
-    res.send(petDetails);
+    res.status(200).send(petDetails);
   }
   else{
     res.send(400);

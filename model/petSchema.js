@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const petSchema = new mongoose.Schema({
-  // uudi: {
+  // uid: {
   //   type: String,
   //   required: true,
   // },
