@@ -116,15 +116,17 @@ router.post('/images', upload.single('image'), async (req, res) => {
 
 
 router.post("/createpet", async (req, res) => {
-  const {about,adoptionFee,age,gender,petimage,petcategory,petname,selectedPet,size} = req.body;
-  if (!about || !adoptionFee || !age || !gender || !petcategory || !petname || !selectedPet || !size) {
-    res.status(422).json({ error: "Plz fill the required field" });
+  const {about,adoptionFee,age,gender,petimage,petcategory,petname,selectedPet,size,adoptedBy} = req.body;
+  if (!about || !adoptionFee || !age || !gender || !petcategory || !petname || !selectedPet || !size || !adoptedBy) {
+    res.sendStatus(422).json({ error: "Plz fill the required field" });
   }
   try {
-    const pet = new Pet({ about,adoptionFee,age,gender,petcategory,petname,selectedPet,size });
-    pet.petimages = pet.petimages.concat({ image : petimage[0] });
+    const pet = new Pet({ about,adoptionFee,age,gender,petcategory,petname,selectedPet,size,adoptedBy });
+    console.log(petimage)
+    await petimage.map(image=>{pet.petimages = pet.petimages.concat({ image: image })});
     await pet.save();
-    res.json({ message: "Pet added successfully!!!" }).send(201);  
+    res.sendStatus(201)
+    res.json({ message: "Pet added successfully!!!" });  
   } catch (error) {
     console.log(error);
   }

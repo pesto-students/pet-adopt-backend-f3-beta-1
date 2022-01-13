@@ -49,6 +49,18 @@ const petSchema = new mongoose.Schema({
       },
     },
   ],
+  likes: [
+    {
+      like: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  adoptedBy: {
+    type: String,
+    required: true,
+  },
   adoptionFee: {
     type: String,
     required: true,
