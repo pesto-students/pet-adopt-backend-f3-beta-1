@@ -20,6 +20,7 @@ const unlinkFile = util.promisify(fs.unlink)
 
 
 router.get("/dashboard", authenticate , (req, res) => {
+  console.log(req.rootUser);
   res.send(req.rootUser);
 });
 
@@ -134,7 +135,7 @@ router.post("/createpet", async (req, res) => {
 
 router.get("/fetchpet", authenticate ,async (req, res) => {
   console.log("pet details called");
-  const petDetails = await Pet.findOne({petname: "spike"})
+  const petDetails = await Pet.findOne({petname: "tty"})
   if(petDetails){
     res.status(200).send(petDetails);
   }
