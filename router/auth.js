@@ -20,7 +20,6 @@ const unlinkFile = util.promisify(fs.unlink)
 
 
 router.get("/dashboard", authenticate , (req, res) => {
-  console.log(req.rootUser);
   res.send(req.rootUser);
 });
 
@@ -117,12 +116,12 @@ router.post('/images', upload.single('image'), async (req, res) => {
 
 
 router.post("/createpet", async (req, res) => {
-  const {about,adoptionFee,age,gender,petimage,petcategory,petname,selectedPet,size,adoptedBy} = req.body;
+  const {userId, about,adoptionFee,age,gender,petimage,petcategory,petname,selectedPet,size,adoptedBy} = req.body;
   if (!about || !adoptionFee || !age || !gender || !petcategory || !petname || !selectedPet || !size || !adoptedBy) {
     res.sendStatus(422).json({ error: "Plz fill the required field" });
   }
   try {
-    const pet = new Pet({ about,adoptionFee,age,gender,petcategory,petname,selectedPet,size,adoptedBy });
+    const pet = new Pet({userId,about,adoptionFee,age,gender,petcategory,petname,selectedPet,size,adoptedBy });
     console.log(petimage)
     await petimage.map(image=>{pet.petimages = pet.petimages.concat({ image: image })});
     await pet.save();
@@ -135,7 +134,7 @@ router.post("/createpet", async (req, res) => {
 
 router.get("/fetchpet", authenticate ,async (req, res) => {
   console.log("pet details called");
-  const petDetails = await Pet.findOne({petname: "tty"})
+  const petDetails = await Pet.findOne({petname: "yyt"})
   if(petDetails){
     res.status(200).send(petDetails);
   }
