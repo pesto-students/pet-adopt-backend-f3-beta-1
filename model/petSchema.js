@@ -47,6 +47,10 @@ const petSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      request: {
+        type: Boolean,
+        required: true,
+      },
     },
   ],
   likes: [
