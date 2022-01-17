@@ -9,7 +9,11 @@ require('./db/conn');
 app.use(express.json());
 app.use(cookieParser());
 app.use(require('./router/auth'));
-app.use(cors({origin: /\.herokuapp\.com$/}));
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+  });
 
 const User = require('./model/userSchema');
 
