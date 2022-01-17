@@ -75,7 +75,6 @@ router.post("/signin", async (req, res) => {
         console.log('step5');
         res.cookie("jwtoken",token,{
           expires:new Date(Date.now() +25892000000),
-          httpOnly:true,
         });
         return res.status(200).json({ message: "User logged in successfully" });
       } else {
