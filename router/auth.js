@@ -20,11 +20,17 @@ const unlinkFile = util.promisify(fs.unlink)
 
 
 router.get("/dashboard", authenticate , (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Credentials',true);
   res.send(req.rootUser);
 });
 
 router.get("/contact", (req, res) => {
   res.send("<h1>Hello contact!!!</h1>");
+});
+
+router.get("/", (req, res) => {
+  res.send("<h1>Hi from backend</h1>");
 });
 
 
