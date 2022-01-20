@@ -43,11 +43,11 @@ const petSchema = new mongoose.Schema({
   },
   requests: [
     {
-      request: {
+      userId: {
         type: String,
         required: true,
       },
-      request: {
+      requestStatus: {
         type: Boolean,
         required: true,
       },

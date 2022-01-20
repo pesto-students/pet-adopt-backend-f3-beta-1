@@ -20,8 +20,8 @@ const unlinkFile = util.promisify(fs.unlink)
 
 
 router.get("/dashboard", authenticate , (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Credentials',true);
+  // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  // res.setHeader('Access-Control-Allow-Credentials',true);
   res.send(req.rootUser);
 });
 
@@ -66,21 +66,13 @@ router.post("/signin", async (req, res) => {
   try {
     const userlogin = await User.findOne({ email: email });
     if (userlogin) {
-      console.log('step1');
       const isMatch = await bcrypt.compare(password, userlogin.password);
-      console.log('step2');
       const token = await userlogin.generateAuthToken();
-      console.log('step3');
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 900000),
-        httpOnly: true,
-      });
-      console.log('step4');
       if (isMatch) {
         const token = await userlogin.generateAuthToken();
-        console.log('step5');
         res.cookie("jwtoken",token,{
           expires:new Date(Date.now() +25892000000),
+          httpOnly: true,
         });
         return res.status(200).json({ message: "User logged in successfully" });
       } else {
@@ -97,12 +89,12 @@ router.post("/signin", async (req, res) => {
 //Logout Page
 router.get("/logout", (req, res) => {
   console.log('Logout');
+  const {userId} = req.body;  
   res.clearCookie('jwtoken',{path: '/'})
   res.status(200).send('User Logout Done.');
 });
 
 router.get('/images/:key', (req, res) => {
-  console.log(req.params)
   const key = req.params.key
   const readStream = getFileStream(key)
 
@@ -111,10 +103,8 @@ router.get('/images/:key', (req, res) => {
 
 router.post('/images', upload.single('image'), async (req, res) => {
   const file = req.file
-  console.log(file)
   const result = await uploadFile(file)
   await unlinkFile(file.path)
-  console.log(result)
   res.send(result)
 });
 
@@ -138,8 +128,9 @@ router.post("/createpet", async (req, res) => {
 });
 
 router.get("/fetchpet", authenticate ,async (req, res) => {
-  console.log("pet details called");
-  const petDetails = await Pet.findOne({petname: "yyt"})
+  console.log(req.userID,"Pet details called");
+  const petDetails = await Pet.find({userId: req.userID})
+  console.log(petDetails);
   if(petDetails){
     res.status(200).send(petDetails);
   }
@@ -148,5 +139,39 @@ router.get("/fetchpet", authenticate ,async (req, res) => {
   }
 });
 
+router.get("/fetchallpet", authenticate ,async (req, res) => {
+  const petDetails = await Pet.find()
+  if(petDetails){
+    res.status(200).send(petDetails);
+  }
+  else{
+    res.send(400);
+  }
+});
+
+router.post("/sendrequest", authenticate ,async (req, res) => {
+  const { _id,userId } = req.body;
+  const petDetails = await Pet.findOne({_id : _id})
+  if(petDetails){
+    petDetails.requests = petDetails.requests.concat({ userId: userId, requestStatus: false });
+    await petDetails.save();
+    res.sendStatus(200).send(petDetails);
+  }
+  else{
+    res.sendStatus(400);
+  }
+});
+
+router.get("/petindetail", authenticate ,async (req, res) => {
+  console.log(req.id,"petindetail called");
+  const petDetails = await Pet.findOne({_id: req.id})
+  console.log(petDetails);
+  if(petDetails){
+    res.sendStatus(200).send(petDetails);
+  }
+  else{
+    res.send(400);
+  }
+});
 
 module.exports = router;
