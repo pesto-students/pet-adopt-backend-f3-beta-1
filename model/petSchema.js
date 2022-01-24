@@ -55,7 +55,7 @@ const petSchema = new mongoose.Schema({
   ],
   likes: [
     {
-      like: {
+      userId: {
         type: String,
         required: true,
       },

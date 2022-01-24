@@ -172,15 +172,44 @@ router.post("/sendrequest", authenticate ,async (req, res) => {
   }
 });
 
-router.get("/petindetail", authenticate ,async (req, res) => {
-  console.log(req.id,"petindetail called");
-  const petDetails = await Pet.findOne({_id: req.id})
+router.get("/petindetail/:petid", authenticate ,async (req, res) => {
+  const petid = req.params.petid
+  console.log(petid);
+  const petDetails = await Pet.findOne({_id: petid})
   console.log(petDetails);
   if(petDetails){
-    res.sendStatus(200).send(petDetails);
+    res.send(petDetails);
+    res.sendStatus(200)
+  }
+  else{
+    res.sendStatus(400);
+  }
+});
+
+router.get("/category/:category", authenticate ,async (req, res) => {
+  const category = req.params.category;
+  const petDetails = await Pet.find({ selectedPet: category })
+  if(petDetails){
+    res.status(200).send(petDetails);
   }
   else{
     res.send(400);
+  }
+});
+
+router.post("/like", authenticate ,async (req, res) => {
+  const { _id,userId } = req.body;
+  const user = await User.findOne({_id : userId})
+  const petDetails = await Pet.findOne({_id : _id})
+  if(user && petDetails){
+    user.likes = user.likes.concat({ petId: _id});
+    await user.save();    
+    petDetails.likes = petDetails.likes.concat({ userId: userId});
+    await petDetails.save();
+    res.sendStatus(200).send(petDetails);
+  }
+  else{
+    res.sendStatus(400);
   }
 });
 
