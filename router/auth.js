@@ -103,9 +103,20 @@ router.get('/images/:key', (req, res) => {
 
 router.post('/images', upload.single('image'), async (req, res) => {
   const file = req.file
-  const result = await uploadFile(file)
+  const {petId} = req.body;
+  console.log(petId, "image upload");
+  const pet = await Pet.findOne({_id: petId});
+  console.log(pet);
+  if(pet){
+    const result = await uploadFile(file)
+    console.log(result);
+    pet.petimages = pet.petimages.concat({ image: result.Key });
+    await pet.save();  
+    console.log(pet);
+    console.log("image saved");
+    res.send(result)
+  }
   await unlinkFile(file.path)
-  res.send(result)
 });
 
 
@@ -119,9 +130,9 @@ router.post("/createpet", async (req, res) => {
     const pet = new Pet({userId,about,adoptionFee,age,gender,petcategory,petname,selectedPet,size,adoptedBy });
     console.log(petimage)
     await petimage.map(image=>{pet.petimages = pet.petimages.concat({ image: image })});
-    await pet.save();
+    const data = await pet.save();
+    res.json({ message: "Pet added successfully!!!",data: data });  
     res.sendStatus(201)
-    res.json({ message: "Pet added successfully!!!" });  
   } catch (error) {
     console.log(error);
   }
@@ -130,7 +141,6 @@ router.post("/createpet", async (req, res) => {
 router.get("/fetchpet", authenticate ,async (req, res) => {
   console.log(req.userID,"Pet details called");
   const petDetails = await Pet.find({userId: req.userID})
-  console.log(petDetails);
   if(petDetails){
     res.status(200).send(petDetails);
   }
