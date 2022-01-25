@@ -35,9 +35,9 @@ router.get("/", (req, res) => {
 
 
 router.post("/signup", async (req, res) => {
-  const { name, email, phone, work, password, cpassword } = req.body;
+  const { name, email, phone, location, password, cpassword } = req.body;
   console.log(req.body);
-  if (!name || !email || !phone || !work || !password || !cpassword) {
+  if (!name || !email || !phone || !location || !password || !cpassword) {
     res.status(422).json({ error: "Plz fill the required field" });
   }
   try {
@@ -47,7 +47,7 @@ router.post("/signup", async (req, res) => {
     } else if (password != cpassword) {
       return res.status(422).json({ error: "password not matching" });
     } else {
-      const user = new User({ name, email, phone, work, password, cpassword });
+      const user = new User({ name, email, phone, location, password, cpassword });
       await user.save();
       res.status(201).json({ message: "User registered successfully!!!" });
     }
@@ -57,7 +57,6 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-  console.log('signin called');
   const { email, password } = req.body;
   let token;
   if (!email || !password) {
@@ -74,7 +73,7 @@ router.post("/signin", async (req, res) => {
           expires:new Date(Date.now() +25892000000),
           httpOnly: true,
         });
-        return res.status(200).json({ message: "User logged in successfully" });
+        return res.status(200).send(userlogin);
       } else {
         return res.status(400).json({ message: "Invalid Credentials" });
       }
@@ -96,9 +95,12 @@ router.get("/logout", (req, res) => {
 
 router.get('/images/:key', (req, res) => {
   const key = req.params.key
-  const readStream = getFileStream(key)
-
-  readStream.pipe(res)
+  try {
+    const readStream = getFileStream(key)
+    readStream.pipe(res)    
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 router.post('/images', upload.single('image'), async (req, res) => {
@@ -206,7 +208,8 @@ router.post("/like", authenticate ,async (req, res) => {
     await user.save();    
     petDetails.likes = petDetails.likes.concat({ userId: userId});
     await petDetails.save();
-    res.sendStatus(200).send(petDetails);
+    res.send(petDetails);
+    res.sendStatus(200);
   }
   else{
     res.sendStatus(400);
