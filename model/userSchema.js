@@ -48,6 +48,14 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  myrequests: [
+    {
+      petId: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

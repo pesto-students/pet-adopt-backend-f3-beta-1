@@ -164,10 +164,13 @@ router.get("/fetchallpet", authenticate ,async (req, res) => {
 router.post("/sendrequest", authenticate ,async (req, res) => {
   const { _id,userId } = req.body;
   const petDetails = await Pet.findOne({_id : _id})
-  if(petDetails){
+  const user = await User.findOne({_id: userId})
+  if(petDetails && user){
     petDetails.requests = petDetails.requests.concat({ userId: userId, requestStatus: false });
     await petDetails.save();
-    res.sendStatus(200).send(petDetails);
+    user.myrequests = user.myrequests.concat({petId: _id});
+    await user.save();
+    res.sendStatus(200);
   }
   else{
     res.sendStatus(400);
@@ -178,10 +181,8 @@ router.get("/petindetail/:petid", authenticate ,async (req, res) => {
   const petid = req.params.petid
   console.log(petid);
   const petDetails = await Pet.findOne({_id: petid})
-  console.log(petDetails);
   if(petDetails){
     res.send(petDetails);
-    res.sendStatus(200)
   }
   else{
     res.sendStatus(400);
@@ -190,7 +191,7 @@ router.get("/petindetail/:petid", authenticate ,async (req, res) => {
 
 router.get("/category/:category", authenticate ,async (req, res) => {
   const category = req.params.category;
-  const petDetails = await Pet.find({ selectedPet: category })
+  const petDetails = await Pet.find({ petcategory: category })
   if(petDetails){
     res.status(200).send(petDetails);
   }
@@ -215,5 +216,45 @@ router.post("/like", authenticate ,async (req, res) => {
     res.sendStatus(400);
   }
 });
+
+router.post("/unlike", authenticate ,async (req, res) => {
+  const { _id,userId } = req.body;
+  const user = await User.findOne({_id : userId})
+  const petDetails = await Pet.findOne({_id : _id})
+  if(user && petDetails){
+    // user.likes = user.likes.concat({ petId: _id});
+    user.likes = user.likes.filter((item) => item.petid !== _id);
+    await user.save();    
+    petDetails.likes = petDetails.likes.filter((item) => item.userId !== userId);
+    await petDetails.save();
+    res.send(petDetails);
+    res.sendStatus(200);
+  }
+  else{
+    res.sendStatus(400);
+  }
+});
+
+router.get('/ownerdetail/:id', (req, res) => {
+  const id = req.params.id
+  try {
+    const readStream = getFileStream(key)
+    readStream.pipe(res)    
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/getuserreqs", authenticate ,async (req, res) => {
+  console.log(req.userID,"Pet details called");
+  const user = await User.find({_id: req.userID})
+  if(petDetails){
+    res.status(200).send(petDetails);
+  }
+  else{
+    res.send(400);
+  }
+});
+
 
 module.exports = router;
