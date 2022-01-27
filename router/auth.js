@@ -177,6 +177,21 @@ router.post("/sendrequest", authenticate ,async (req, res) => {
   }
 });
 
+router.post("/sendrespond", authenticate ,async (req, res) => {
+  const { _id,userId } = req.body;
+  const petDetails = await Pet.findOne({_id : _id})
+  if(petDetails){
+    const index = petDetails.requests.findIndex(item => item.userId === userId );
+    petDetails.requests[index] = { userId: userId, requestStatus: true }
+    await petDetails.save();
+    res.send(petDetails);
+    res.sendStatus(200);
+  }
+  else{
+    res.sendStatus(400);
+  }
+});
+
 router.get("/petindetail/:petid", authenticate ,async (req, res) => {
   const petid = req.params.petid
   console.log(petid);
