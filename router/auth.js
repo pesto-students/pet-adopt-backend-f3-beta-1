@@ -245,14 +245,11 @@ router.get('/ownerdetail/:id', (req, res) => {
   }
 });
 
-router.get("/getuserreqs", authenticate ,async (req, res) => {
-  console.log(req.userID,"Pet details called");
-  const user = await User.find({_id: req.userID})
-  if(petDetails){
-    res.status(200).send(petDetails);
-  }
-  else{
-    res.send(400);
+router.get("/username/:userId", authenticate ,async (req, res) => {
+  const id = req.params.userId
+  const user = await User.find({_id: id})
+  if(user){
+    res.send(user).sendStatus(200);
   }
 });
 
