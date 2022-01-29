@@ -194,10 +194,32 @@ router.post("/sendrespond", authenticate ,async (req, res) => {
 
 router.get("/petindetail/:petid", authenticate ,async (req, res) => {
   const petid = req.params.petid
-  console.log(petid);
   const petDetails = await Pet.findOne({_id: petid})
   if(petDetails){
-    res.send(petDetails);
+    res.send(petDetails).sendStatus(200);
+  }
+  else{
+    res.sendStatus(400);
+  }
+});
+
+router.post("/petindetails", authenticate ,async (req, res) => {
+  const {petId,userId} = req.body;
+  console.log(petId,userId,"petdetails called");
+  const petDetails = await Pet.findOne({_id: petId})
+  if(petDetails){
+    // res.send(petDetails);
+    const userIndex = petDetails.requests.findIndex(item => item.userId === userId)
+    console.log(petDetails.requests[userIndex].requestStatus);
+    if(petDetails.requests[userIndex].requestStatus){
+      const user = await User.findOne({_id:petDetails.userId})
+      console.log(user);
+      if(user){
+        res.send({petDetails,user,status:true});
+      }
+    }
+    res.send({petDetails,status:false});
+    res.sendStatus(200);
   }
   else{
     res.sendStatus(400);
@@ -247,16 +269,6 @@ router.post("/unlike", authenticate ,async (req, res) => {
   }
   else{
     res.sendStatus(400);
-  }
-});
-
-router.get('/ownerdetail/:id', (req, res) => {
-  const id = req.params.id
-  try {
-    const readStream = getFileStream(key)
-    readStream.pipe(res)    
-  } catch (error) {
-    console.log(error);
   }
 });
 
