@@ -25,13 +25,13 @@ router.get("/dashboard", authenticate , (req, res) => {
   res.send(req.rootUser);
 });
 
-router.get("/contact", (req, res) => {
-  res.send("<h1>Hello contact!!!</h1>");
-});
+// router.get("/contact", (req, res) => {
+//   res.send("<h1>Hello contact!!!</h1>");
+// });
 
-router.get("/", (req, res) => {
-  res.send("<h1>Hi from backend</h1>");
-});
+// router.get("/", (req, res) => {
+//   res.send("<h1>Hi from backend</h1>");
+// });
 
 
 router.post("/signup", async (req, res) => {
