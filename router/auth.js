@@ -151,7 +151,7 @@ router.get("/fetchpet", authenticate ,async (req, res) => {
   }
 });
 
-router.get("/fetchallpet", authenticate ,async (req, res) => {
+router.get("/fetchallpet", async (req, res) => {
   const petDetails = await Pet.find()
   if(petDetails){
     res.status(200).send(petDetails);
